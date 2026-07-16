@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 
 from app.controllers.message_controller import listar_mensagens_por_usuario
 from app.controllers.user_controller import (
@@ -8,17 +9,17 @@ from app.controllers.user_controller import (
     listar_usuarios,
 )
 
-
 users_bp = Blueprint("users", __name__)
 
 
-
+# Rota pública
 @users_bp.route("/", methods=["GET"])
 def get_users():
     response, status = listar_usuarios()
     return jsonify(response), status
 
 
+# Rota pública (cadastro de usuário)
 @users_bp.route("/", methods=["POST"])
 def post_user():
     data = request.get_json()
@@ -26,14 +27,18 @@ def post_user():
     return jsonify(response), status
 
 
+# Rota protegida
 @users_bp.route("/<int:id>", methods=["PATCH"])
+@jwt_required()
 def patch_user(id):
     data = request.get_json()
     response, status = atualizar_usuario(id, data)
     return jsonify(response), status
 
 
+# Rota protegida
 @users_bp.route("/<int:id>", methods=["DELETE"])
+@jwt_required()
 def delete_user(id):
     response, status = deletar_usuario(id)
     if status == 204:
@@ -41,6 +46,7 @@ def delete_user(id):
     return jsonify(response), status
 
 
+# Rota pública
 @users_bp.route("/<int:user_id>/messages", methods=["GET"])
 def get_user_messages(user_id):
     response, status = listar_mensagens_por_usuario(user_id)
