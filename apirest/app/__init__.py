@@ -3,11 +3,12 @@ from marshmallow import ValidationError
 from werkzeug.exceptions import NotFound
 
 from .config import Config
-from .extensions import db, ma, migrate
+from .extensions import db, ma, migrate, jwt
 from .routes.messages import messages_bp
 from .routes.users import users_bp
 from .routes.parkings import parkings_bp
 from .routes.spots import spots_bp
+from app.routes.auth_routes import auth_bp
 
 
 def create_app():
@@ -18,6 +19,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     ma.init_app(app)
+    jwt.init_app(app)
 
     from .models import message, user, parking, spot  # noqa: F401
 
@@ -25,6 +27,7 @@ def create_app():
     app.register_blueprint(users_bp, url_prefix="/users")
     app.register_blueprint(parkings_bp, url_prefix="/parkings")
     app.register_blueprint(spots_bp, url_prefix="/spots")
+    app.register_blueprint(auth_bp)
 
     @app.errorhandler(ValidationError)
     def handle_validation_error(err):
