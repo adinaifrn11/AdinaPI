@@ -30,7 +30,7 @@ def login():
         }), 401
 
     # Gera o token JWT
-    token = create_access_token(identity=usuario.id)
+    token = create_access_token(identity=str(usuario.id))
 
     # Retorna o token
     return jsonify({
